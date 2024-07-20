@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const ProgressBar = ({ audioRef }) => {
+const ProgressBar = ({ audioRef, isRepeat, onSongChange }) => {
 	const [audioDuration, setAudioDuration] = useState("00:00");
 	const [currentTime, setCurrentTime] = useState("00:00");
 	const [duration, setDuration] = useState(0); //Store audio duration in seconds for progress bar
@@ -22,6 +22,17 @@ const ProgressBar = ({ audioRef }) => {
 			setRunningTime(audioElement.currentTime);
 
 			setCurrentTime(formattedCurrentTime);
+
+			if (audioElement.currentTime === audioElement.duration) {
+				if (isRepeat) {
+					//song is onRepeat mode
+					audioRef.current.currentTime = 0;
+
+					onSongChange();
+				} else {
+					onSongChange("next");
+				}
+			}
 		};
 
 		// Attach event listeners
@@ -33,7 +44,7 @@ const ProgressBar = ({ audioRef }) => {
 			audioElement.removeEventListener("loadeddata", handleLoadedData);
 			audioElement.removeEventListener("timeupdate", handleTimeUpdate);
 		};
-	}, [audioRef]);
+	}, [audioRef, isRepeat]);
 
 	//Format time given in seconds to mm:ss
 	const formatTime = (duration) => {
